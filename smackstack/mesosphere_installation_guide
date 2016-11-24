@@ -1,0 +1,51 @@
+## Guide to SMACK Stack.
+Ref: https://open.mesosphere.com/advanced-course/installing-zookeeper/
+
+
+Download vagrant
+https://www.vagrantup.com/downloads.html
+
+Install it
+$ sudo dpkg -i path/to/downloadedVagrantFile.deb
+
+## Configuring Vagrant before spawning new instance
+$ mkdir vm-install
+$ cd vm-install
+$ vagrant init centos/7
+
+This will create a Vagrantfile in current directory. Edit this file.
+For other external virtualboxes, see https://atlas.hashicorp.com/search.
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+
+  config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.hostname = "node1" #add this line
+end
+
+## Fire up the vagrant box. This will be a centos7 box.
+#this is the only one available. vmware_fusion, vmware_desktop, and libvirt are not.
+$ vagrant up --provider virtualbox
+
+## SSH into your new playground
+$ vagrant ssh
+$ sudo vi /etc/hosts
+
+Delete line 127.0.0.1 localhost localhost.localdomain ... first line.
+Add the following at the end. It's the IP address set in Vagrantfile
+192.168.33.10 node1
+
+## Install Mesosphere now
+$ sudo rpm -Uvh http://repos.mesosphere.com/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+$ sudo yum -y install mesos marathon
+
+## Go through exercise to install Zookeeper
+
+## Using Apache Mesos
+Need to install net-tools to get netstat
+$ sudo yum -y install net-tools.x86_64
+
+Start the mesos-master and mesos-slave processes:
+$ sudo service mesos-master start
+$ sudo service mesos-slave start
+$ sudo netstat -nlp | grep mesos
